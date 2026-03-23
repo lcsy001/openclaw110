@@ -100,7 +100,7 @@ function LanguageSwitcher() {
 export default function HomePage() {
   const pathname = usePathname();
   
-  // 从路径中检测语言
+  // 从路径中检测语言 (/en 路径使用英文)
   const isEnglish = pathname.startsWith("/en");
   const lang = isEnglish ? "en" : "zh";
   
@@ -209,7 +209,6 @@ export default function HomePage() {
             </Link>
           </div>
           <nav className="flex items-center gap-4">
-            <LanguageSwitcher />
             <nav className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => (
                 <Link
@@ -229,6 +228,7 @@ export default function HomePage() {
             >
               {t("header.github")}
             </a>
+            <LanguageSwitcher />
             <Link
               href={getLangPath("/docs/quickstart")}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
