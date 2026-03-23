@@ -8,5 +8,9 @@ RUN npm install
 COPY . .
 RUN npm run build
 
+# Serve static files
+WORKDIR /app/dist
+RUN npm install -g serve
+
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+CMD ["serve", "-p", "3000", "-s", "."]
