@@ -97,11 +97,11 @@ function LanguageSwitcher() {
   );
 }
 
-export default function HomePage() {
+export default function HomePage({ params }: { params: { lang?: string } }) {
+  // 优先使用 params.lang，否则从路径中检测语言
   const pathname = usePathname();
-  
-  // 从路径中检测语言 (/en 路径使用英文)
-  const isEnglish = pathname.startsWith("/en");
+  const langParam = params?.lang;
+  const isEnglish = langParam === "en" || pathname.startsWith("/en");
   const lang = isEnglish ? "en" : "zh";
   
   const t = useMemo(() => {

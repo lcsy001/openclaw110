@@ -20,8 +20,8 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" translate="no">
       <head>
-        <link rel="alternate" hrefLang="en" href="https://docs.openclaw.ai/en" />
-        <link rel="alternate" hrefLang="zh-CN" href="https://docs.openclaw.ai" />
+        <link rel="alternate" hrefLang="en" href="https://openclaw110.com/en" />
+        <link rel="alternate" hrefLang="zh-CN" href="https://openclaw110.com" />
       </head>
       <body className="antialiased">{children}</body>
     </html>
