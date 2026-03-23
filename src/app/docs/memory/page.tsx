@@ -1,51 +1,60 @@
+"use client";
+
 import DocLayout from "../../../components/DocLayout";
 import CodeBlock from "../../../components/CodeBlock";
+import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 import { Brain, Clock, Database, Users, FileText, Search } from "lucide-react";
-
-export const metadata = {
-  title: "记忆与代理 - OpenClaw 教程",
-};
+import zhTranslations from "../../../components/i18n/zh";
+import enTranslations from "../../../components/i18n/en";
 
 export default function MemoryPage() {
+  const pathname = usePathname();
+  const isEnglish = pathname.startsWith("/en");
+  const lang = isEnglish ? "en" : "zh";
+  
+  const translations = lang === "en" ? enTranslations : zhTranslations;
+  const t = useMemo(() => {
+    return (key: string): string => {
+      return (translations as Record<string, string>)[key] || key;
+    };
+  }, [lang, translations]);
+
   return (
     <DocLayout>
-      <h1>记忆与代理</h1>
+      <h1>{t("memory.title")}</h1>
       
-      <p>
-        OpenClaw 的记忆系统让助手能够记住对话历史、用户偏好和重要信息，
-        提供更加个性化的体验。
-      </p>
+      <p>{t("memory.desc")}</p>
 
       <div className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white p-6 rounded-xl my-8">
         <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
           <Brain className="w-5 h-5" />
-          为什么需要记忆？
+          {t("memory.whyNeedMemory")}
         </h3>
         <p className="text-indigo-100">
-          没有记忆的助手就像金鱼——每次对话都从零开始。记忆让助手能持续学习你的偏好，
-          提供越来越贴心的服务。
+          {t("memory.whyNeedMemoryDesc")}
         </p>
       </div>
 
-      <h2>记忆类型</h2>
+      <h2>{t("memory.types")}</h2>
       
       <div className="grid md:grid-cols-2 gap-6 my-8">
         <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
           <div className="flex items-center gap-3 mb-4">
             <Clock className="w-8 h-8 text-blue-500" />
-            <h3 className="font-semibold text-slate-900">短期记忆</h3>
+            <h3 className="font-semibold text-slate-900">{t("memory.shortTerm")}</h3>
           </div>
           <p className="text-slate-600 mb-4">
-            自动保存当前对话的历史记录，让助手理解上下文。
+            {t("memory.shortTermDesc")}
           </p>
           <CodeBlock 
             language="yaml"
             code={`agents:
   default:
-    # 保留的对话轮数
+    # Number of conversation rounds to retain
     context_window: 10
     
-    # 是否总结长对话
+    # Whether to summarize long conversations
     summarize_threshold: 20`} 
           />
         </div>
@@ -53,10 +62,10 @@ export default function MemoryPage() {
         <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
           <div className="flex items-center gap-3 mb-4">
             <Database className="w-8 h-8 text-purple-500" />
-            <h3 className="font-semibold text-slate-900">长期记忆</h3>
+            <h3 className="font-semibold text-slate-900">{t("memory.longTerm")}</h3>
           </div>
           <p className="text-slate-600 mb-4">
-            跨会话记住重要信息，如用户偏好、重要日期等。
+            {t("memory.longTermDesc")}
           </p>
           <CodeBlock 
             language="yaml"
@@ -69,190 +78,188 @@ export default function MemoryPage() {
         </div>
       </div>
 
-      <h2>记忆文件结构</h2>
-      <p>OpenClaw 在工作区的 memory 目录中存储记忆：</p>
+      <h2>{t("memory.fileStructure")}</h2>
+      <p>{t("memory.fileStructureDesc")}</p>
       
       <CodeBlock 
         filename="memory/"
         code={`memory/
-├── MEMORY.md           # 核心记忆（手动维护）
-├── 2026-03-06.md       # 每日日志（自动生成）
+├── MEMORY.md           # Core memory (manually maintained)
+├── 2026-03-06.md       # Daily logs (auto-generated)
 ├── 2026-03-05.md
-└── embeddings/         # 向量嵌入存储
+└── embeddings/         # Vector embedding storage
     └── ...`} 
       />
 
-      <h2>MEMORY.md - 你的长期记忆</h2>
-      <p>这是最重要的记忆文件，用于存储长期需要记住的信息：</p>
+      <h2>{t("memory.longTermMemory")}</h2>
+      <p>{t("memory.longTermMemoryDesc")}</p>
       
       <CodeBlock 
         filename="MEMORY.md"
-        code={`# 用户记忆
+        code={`# User Memory
 
-## 基本信息
-- 名字: 张三
-- 职业: 软件工程师
-- 时区: Asia/Shanghai
-- 语言偏好: 简体中文
+## Basic Information
+- Name: John
+- Profession: Software Engineer
+- Timezone: America/New_York
+- Language: English
 
-## 偏好设置
-- 喜欢简洁的回答
-- 偏好 Python 语言
-- 不喜欢太正式的语气
-- 代码风格：PEP8
+## Preferences
+- Prefers concise answers
+- Likes Python
+- Informal tone is okay
+- Code style: PEP8
 
-## 重要日期
-- 生日: 1990-05-15
-- 项目截止日期: 2026-04-01
+## Important Dates
+- Birthday: 1990-05-15
+- Project deadline: 2026-04-01
 
-## 正在进行的项目
-- OpenClaw 教程网站开发
-- 个人知识库整理
+## Ongoing Projects
+- OpenClaw tutorial website
+- Personal knowledge base
 
-## 技术栈
-- 前端: React, TypeScript, TailwindCSS
-- 后端: Node.js, Python
-- 数据库: PostgreSQL, MongoDB`} 
+## Tech Stack
+- Frontend: React, TypeScript, TailwindCSS
+- Backend: Node.js, Python
+- Database: PostgreSQL, MongoDB`} 
       />
 
-      <h2>自动记忆提取</h2>
-      <p>开启后，助手会自动从对话中提取重要信息并保存：</p>
+      <h2>{t("memory.autoExtract")}</h2>
+      <p>{t("memory.autoExtractDesc")}</p>
       
       <CodeBlock 
         language="yaml"
         code={`memory:
   auto_extract: true
   extract_topics:
-    - personal_info    # 个人信息
-    - preferences      # 偏好设置
-    - facts            # 事实信息
-    - todos            # 待办事项
-    - projects         # 项目信息`} 
+    - personal_info    # Personal information
+    - preferences      # Preferences
+    - facts            # Factual information
+    - todos            # Todo items
+    - projects         # Project information`} 
       />
 
       <div className="bg-green-50 border-l-4 border-green-500 p-4 my-6 rounded-r-lg">
-        <h4 className="font-semibold text-green-900 mb-2">自动提取示例</h4>
+        <h4 className="font-semibold text-green-900 mb-2">{t("memory.extractExample")}</h4>
         <div className="space-y-2 text-sm text-green-800">
-          <p><strong>用户:</strong> "我叫李四，是一名设计师"</p>
-          <p><strong>系统:</strong> 自动提取 → 名字: 李四, 职业: 设计师</p>
+          <p><strong>{t("memory.user")}:</strong> "My name is John, I'm a designer"</p>
+          <p><strong>{t("memory.system")}:</strong> {t("memory.extractResult")}</p>
         </div>
       </div>
 
-      <h2>多代理系统（Agents）</h2>
+      <h2>{t("memory.multiAgent")}</h2>
       
       <div className="flex items-center gap-3 mb-4">
         <Users className="w-6 h-6 text-indigo-500" />
         <p className="text-slate-700">
-          你可以配置多个不同的代理，每个有自己的个性和专长：
+          {t("memory.multiAgentDesc")}
         </p>
       </div>
 
       <CodeBlock 
         language="yaml"
         code={`agents:
-  # 通用助手 - 默认使用
+  # General assistant - default
   default:
     model: bailian/kimi-k2.5
     system_prompt: |
-      你是一个 helpful 的 AI 助手，友好且专业。
-      用简洁清晰的中文回答用户的问题。
+      You are a helpful AI assistant, friendly and professional.
+      Provide concise and clear answers.
   
-  # 代码专家 - 编程相关
+  # Code expert - programming related
   coder:
     model: bailian/qwen3-coder-plus
     system_prompt: |
-      你是资深程序员，擅长多种编程语言。
-      提供清晰、高效、符合最佳实践的代码解决方案。
-      优先使用中文注释。
+      You are a senior programmer, proficient in multiple programming languages.
+      Provide clear, efficient code solutions following best practices.
     skills:
       - github
       - coding-agent
   
-  # 创意写手 - 文案创作
+  # Creative writer - content creation
   writer:
     model: bailian/qwen3.5-plus
     temperature: 0.9
     system_prompt: |
-      你是创意写作专家，文风活泼有趣。
-      擅长撰写文章、故事、营销文案。
+      You are a creative writing expert with lively and interesting style.
+      Good at writing articles, stories, marketing copy.
   
-  # 数据分析师
+  # Data analyst
   analyst:
     model: bailian/glm-5
     system_prompt: |
-      你是数据分析专家，严谨细致。
-      擅长数据解读、报表分析、趋势预测。`} 
+      You are a data analysis expert, rigorous and detailed.
+      Good at data interpretation, report analysis, trend prediction.`} 
       />
 
-      <h3>切换代理</h3>
-      <p>在对话中动态切换使用的代理：</p>
+      <h3>{t("memory.switchAgent")}</h3>
+      <p>{t("memory.switchAgentDesc")}</p>
       
       <div className="bg-slate-100 p-4 rounded-lg my-4 space-y-2">
-        <p><strong>用户:</strong> <code>@coder 帮我 review 这段代码</code></p>
-        <p><strong>助手:</strong> [切换到 coder 代理] 好的，让我看看这段代码...</p>
+        <p><strong>{t("memory.user")}:</strong> <code>@coder help me review this code</code></p>
+        <p><strong>{t("memory.assistant")}:</strong> [Switching to coder agent] Sure, let me look at this code...</p>
       </div>
 
-      <h2>记忆搜索</h2>
-      <p>助手会自动搜索相关记忆来回答问题。你也可以手动触发搜索：</p>
+      <h2>{t("memory.search")}</h2>
+      <p>{t("memory.searchDesc")}</p>
       
-      <CodeBlock code={`# 手动触发记忆搜索（开发调试用）
-openclaw memory search "用户的偏好"
+      <CodeBlock code={`# Manual memory search (for development/debugging)
+openclaw memory search "user preferences"
 
-# 查看记忆统计
+# View memory statistics
 openclaw memory stats`} />
 
-      <h2>隐私与安全</h2>
+      <h2>{t("memory.privacy")}</h2>
       
       <div className="grid md:grid-cols-2 gap-4 my-6">
         <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-lg">
           <FileText className="w-5 h-5 text-slate-600 mt-0.5" />
           <div>
-            <h4 className="font-semibold text-slate-900">本地存储</h4>
-            <p className="text-slate-600 text-sm">所有记忆数据本地存储，不上传云端</p>
+            <h4 className="font-semibold text-slate-900">{t("memory.localStorage")}</h4>
+            <p className="text-slate-600 text-sm">{t("memory.localStorageDesc")}</p>
           </div>
         </div>
         <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-lg">
           <Search className="w-5 h-5 text-slate-600 mt-0.5" />
           <div>
-            <h4 className="font-semibold text-slate-900">完全控制</h4>
-            <p className="text-slate-600 text-sm">用户可以完全控制哪些信息被记住</p>
+            <h4 className="font-semibold text-slate-900">{t("memory.fullControl")}</h4>
+            <p className="text-slate-600 text-sm">{t("memory.fullControlDesc")}</p>
           </div>
         </div>
       </div>
 
-      <h2>最佳实践</h2>
+      <h2>{t("memory.bestPractices")}</h2>
       <ol className="space-y-3">
         <li className="flex items-start gap-3">
           <span className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm flex-shrink-0">1</span>
           <div>
-            <strong>定期整理</strong> - 每周回顾 MEMORY.md，删除过时信息
+            <strong>{t("memory.practice1Title")}</strong> - {t("memory.practice1Desc")}
           </div>
         </li>
         <li className="flex items-start gap-3">
           <span className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm flex-shrink-0">2</span>
           <div>
-            <strong>结构化存储</strong> - 使用清晰的标题和分类
+            <strong>{t("memory.practice2Title")}</strong> - {t("memory.practice2Desc")}
           </div>
         </li>
         <li className="flex items-start gap-3">
           <span className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm flex-shrink-0">3</span>
           <div>
-            <strong>保护隐私</strong> - 不要将密码等敏感信息存入记忆
+            <strong>{t("memory.practice3Title")}</strong> - {t("memory.practice3Desc")}
           </div>
         </li>
         <li className="flex items-start gap-3">
           <span className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-sm flex-shrink-0">4</span>
           <div>
-            <strong>适度依赖</strong> - 不是所有信息都需要长期记忆
+            <strong>{t("memory.practice4Title")}</strong> - {t("memory.practice4Desc")}
           </div>
         </li>
       </ol>
 
       <div className="bg-indigo-50 p-6 rounded-xl mt-8">
-        <h4 className="font-semibold text-indigo-900 mb-2">💡 小贴士</h4>
+        <h4 className="font-semibold text-indigo-900 mb-2">💡 {t("memory.tip")}</h4>
         <p className="text-indigo-800 text-sm">
-          良好的记忆管理能让助手越用越懂你。建议从一开始就养成维护 MEMORY.md 的习惯，
-          这会让你的 AI 助手体验提升一个档次。
+          {t("memory.tipDesc")}
         </p>
       </div>
     </DocLayout>

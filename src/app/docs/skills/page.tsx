@@ -1,12 +1,53 @@
+"use client";
+
 import DocLayout from "../../../components/DocLayout";
 import CodeBlock from "../../../components/CodeBlock";
+import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 import { Puzzle, Wrench, Zap, Package, Plus, Share2 } from "lucide-react";
+import zhTranslations from "../../../components/i18n/zh";
+import enTranslations from "../../../components/i18n/en";
 
-export const metadata = {
-  title: "技能系统 - OpenClaw 教程",
-};
+const builtInSkillsEN = [
+  {
+    name: "weather",
+    title: "Weather",
+    desc: "Query real-time weather and forecasts for cities worldwide",
+    config: `skills:
+  - name: weather
+    config:
+      default_city: "Beijing"
+      units: metric  # metric or imperial`,
+  },
+  {
+    name: "web_search",
+    title: "Web Search",
+    desc: "Enable the assistant to search the internet for latest information",
+    config: `skills:
+  - name: web_search
+    config:
+      provider: brave  # brave, google, bing
+      api_key: \${SEARCH_API_KEY}`,
+  },
+  {
+    name: "reminder",
+    title: "Reminder",
+    desc: "Set timed reminders with natural language input",
+    config: `skills:
+  - name: reminder
+    config:
+      storage: memory  # memory or database`,
+  },
+  {
+    name: "calculator",
+    title: "Calculator",
+    desc: "Perform mathematical calculations and unit conversions",
+    config: `skills:
+  - name: calculator`,
+  },
+];
 
-const builtInSkills = [
+const builtInSkillsZH = [
   {
     name: "weather",
     title: "天气查询",
@@ -46,27 +87,37 @@ const builtInSkills = [
 ];
 
 export default function SkillsPage() {
+  const pathname = usePathname();
+  const isEnglish = pathname.startsWith("/en");
+  const lang = isEnglish ? "en" : "zh";
+  
+  const translations = lang === "en" ? enTranslations : zhTranslations;
+  const t = useMemo(() => {
+    return (key: string): string => {
+      return (translations as Record<string, string>)[key] || key;
+    };
+  }, [lang, translations]);
+
+  const builtInSkills = lang === "en" ? builtInSkillsEN : builtInSkillsZH;
+
   return (
     <DocLayout>
-      <h1>技能系统</h1>
+      <h1>{t("skills.title")}</h1>
       
-      <p>
-        技能（Skills）是 OpenClaw 的核心扩展机制。每个技能都是一个独立的功能模块，
-        可以为你的助手添加特定能力。
-      </p>
+      <p>{t("skills.desc")}</p>
 
       <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6 rounded-xl my-8">
         <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
           <Puzzle className="w-5 h-5" />
-          什么是技能？
+          {t("skills.whatIsSkill")}
         </h3>
         <p className="text-purple-100">
-          技能可以理解为助手的"工具包"。通过组合不同的技能，你可以打造出功能各异的 AI 助手。
+          {t("skills.whatIsSkillDesc")}
         </p>
       </div>
 
-      <h2>内置技能一览</h2>
-      <p>OpenClaw 自带了许多实用的技能，开箱即用：</p>
+      <h2>{t("skills.builtInSkills")}</h2>
+      <p>{t("skills.builtInSkillsDesc")}</p>
 
       <div className="space-y-6 my-8">
         {builtInSkills.map((skill, idx) => (
@@ -80,179 +131,177 @@ export default function SkillsPage() {
               <p className="text-slate-600 text-sm mt-2">{skill.desc}</p>
             </div>
             <div className="p-6">
-              <h4 className="text-sm font-semibold text-slate-700 mb-3">配置示例：</h4>
+              <h4 className="text-sm font-semibold text-slate-700 mb-3">{t("skills.configExample")}：</h4>
               <CodeBlock language="yaml" code={skill.config} />
             </div>
           </div>
         ))}
       </div>
 
-      <h2>使用内置技能</h2>
-      <p>在配置文件中启用技能非常简单：</p>
+      <h2>{t("skills.useBuiltIn")}</h2>
+      <p>{t("skills.useBuiltInDesc")}</p>
       
       <CodeBlock 
         filename="config.yaml"
         language="yaml"
         code={`skills:
-  # 简单启用（使用默认配置）
+  # Simple enable (use default config)
   - weather
   - web_search
   - calculator
   
-  # 带自定义配置
+  # With custom config
   - name: reminder
     config:
       storage: memory`} 
       />
 
-      <h2>创建自定义技能</h2>
+      <h2>{t("skills.createCustom")}</h2>
       
-      <h3>技能目录结构</h3>
+      <h3>{t("skills.dirStructure")}</h3>
       <CodeBlock 
         filename="my-skill/"
         code={`my-skill/
-├── SKILL.md          # 技能描述文件（必需）
-├── index.js          # 技能逻辑代码（可选）
-└── package.json      # 依赖配置（可选）`} 
+├── SKILL.md          # Skill description file (required)
+├── index.js          # Skill logic code (optional)
+└── package.json      # Dependencies (optional)`} 
       />
 
-      <h3>步骤 1：创建 SKILL.md</h3>
-      <p>这是技能的入口文件，定义了技能的功能和使用方式：</p>
+      <h3>{t("skills.step1")}</h3>
+      <p>{t("skills.step1Desc")}</p>
       
       <CodeBlock 
         filename="SKILL.md"
         code={`# My Skill
 
 ## Description
-这个技能的简要描述，告诉 AI 这个技能能做什么。
+A brief description of what this skill does.
 
 ## Tools
 
 ### search_news
-搜索新闻的工具
+Tool for searching news
 
-参数:
-- query: 搜索关键词 (string, required)
-- limit: 返回结果数量 (number, optional, default: 5)
+Parameters:
+- query: Search keyword (string, required)
+- limit: Number of results (number, optional, default: 5)
 
 ## Usage
-使用示例：
-- "搜索关于人工智能的最新新闻"
-- "查找今天的科技资讯"`} 
+Usage examples:
+- "Search for latest AI news"
+- "Find today's tech news"`} 
       />
 
-      <h3>步骤 2：编写技能代码（可选）</h3>
-      <p>如果技能需要复杂的逻辑，可以添加 JavaScript/TypeScript 代码：</p>
+      <h3>{t("skills.step2")}</h3>
+      <p>{t("skills.step2Desc")}</p>
       
       <CodeBlock 
         filename="index.js"
-        code={`// 技能逻辑代码
+        code={`// Skill logic code
 module.exports = {
-  // 初始化时调用
+  // Called on initialization
   async init(config) {
-    console.log('技能已加载:', config);
-    // 可以在这里初始化数据库连接、API 客户端等
+    console.log('Skill loaded:', config);
+    // Initialize DB connections, API clients, etc.
   },
   
-  // 定义工具函数
+  // Define tool functions
   tools: {
     async search_news({ query, limit = 5 }) {
-      // 实现搜索逻辑
+      // Implement search logic
       const results = await fetchNewsAPI(query, limit);
       return results;
     },
     
     async get_weather({ city }) {
-      // 实现天气查询
+      // Implement weather query
       const weather = await fetchWeatherAPI(city);
       return weather;
     }
   },
   
-  // 清理资源
+  // Cleanup resources
   async destroy() {
-    console.log('技能已卸载');
+    console.log('Skill unloaded');
   }
 };`} 
       />
 
-      <h3>步骤 3：注册技能</h3>
-      <p>在 config.yaml 中添加你的技能：</p>
+      <h3>{t("skills.step3")}</h3>
+      <p>{t("skills.step3Desc")}</p>
       
       <CodeBlock 
         language="yaml"
         code={`skills:
-  # 本地技能
+  # Local skill
   - ./skills/my-awesome-skill
   
-  # 带配置的技能
+  # Skill with config
   - name: ./skills/my-skill
     config:
       api_key: \${MY_SKILL_API_KEY}`} 
       />
 
-      <h2>技能最佳实践</h2>
+      <h2>{t("skills.bestPractices")}</h2>
       
       <div className="grid md:grid-cols-2 gap-4 my-6">
         <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
           <h4 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
             <Plus className="w-4 h-4" />
-            单一职责
+            {t("skills.practice1Title")}
           </h4>
           <p className="text-green-800 text-sm">
-            每个技能只做一件事，做好一件事。避免功能过于复杂。
+            {t("skills.practice1Desc")}
           </p>
         </div>
         <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
           <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
             <Package className="w-4 h-4" />
-            清晰文档
+            {t("skills.practice2Title")}
           </h4>
           <p className="text-blue-800 text-sm">
-            写好 SKILL.md，让 AI 理解如何使用你的技能。
+            {t("skills.practice2Desc")}
           </p>
         </div>
         <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
           <h4 className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
             <Wrench className="w-4 h-4" />
-            错误处理
+            {t("skills.practice3Title")}
           </h4>
           <p className="text-yellow-800 text-sm">
-            妥善处理异常情况，返回友好的错误信息。
+            {t("skills.practice3Desc")}
           </p>
         </div>
         <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
           <h4 className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
             <Share2 className="w-4 h-4" />
-            分享社区
+            {t("skills.practice4Title")}
           </h4>
           <p className="text-purple-800 text-sm">
-            开发了好用的技能？分享给社区！
+            {t("skills.practice4Desc")}
           </p>
         </div>
       </div>
 
-      <h2>分享你的技能</h2>
-      <p>开发了好用的技能？欢迎分享给社区！你可以：</p>
+      <h2>{t("skills.shareSkill")}</h2>
+      <p>{t("skills.shareSkillDesc")}</p>
       <ul>
-        <li><strong>提交到官方仓库</strong> - 成为 OpenClaw 内置技能</li>
-        <li><strong>发布到 npm</strong> - 他人可以通过 <code>npm install</code> 安装</li>
-        <li><strong>分享到 Discord</strong> - 在社区频道展示你的作品</li>
+        <li><strong>{t("skills.shareOption1")}</strong> - {t("skills.shareOption1Desc")}</li>
+        <li><strong>{t("skills.shareOption2")}</strong> - {t("skills.shareOption2Desc")}</li>
+        <li><strong>{t("skills.shareOption3")}</strong> - {t("skills.shareOption3Desc")}</li>
       </ul>
 
-      <h2>技能市场（即将推出）</h2>
-      <p>
-        我们正在开发官方技能市场，届时你可以：
-      </p>
+      <h2>{t("skills.marketplace")}</h2>
+      <p>{t("skills.marketplaceDesc")}</p>
       <ul>
-        <li>一键安装社区贡献的技能</li>
-        <li>查看技能评分和使用统计</li>
-        <li>轻松管理已安装的技能</li>
+        <li>{t("skills.marketplaceFeature1")}</li>
+        <li>{t("skills.marketplaceFeature2")}</li>
+        <li>{t("skills.marketplaceFeature3")}</li>
       </ul>
       
       <div className="bg-slate-100 p-6 rounded-xl mt-8 text-center">
         <p className="text-slate-600">
-          💡 想学习更多？查看 <a href="/docs/tools" className="text-blue-600 hover:underline">工具与扩展</a> 了解 CLI 命令和 API 接口。
+          💡 {t("skills.learnMore")} <a href={lang === "en" ? "/en/docs/tools" : "/docs/tools"} className="text-blue-600 hover:underline">{t("skills.toolsLink")}</a>
         </p>
       </div>
     </DocLayout>

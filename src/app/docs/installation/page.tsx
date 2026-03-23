@@ -1,53 +1,63 @@
+"use client";
+
 import DocLayout from "../../../components/DocLayout";
 import CodeBlock from "../../../components/CodeBlock";
-import { AlertCircle, CheckCircle, Terminal, Download, Settings } from "lucide-react";
-
-export const metadata = {
-  title: "安装 OpenClaw - OpenClaw 教程",
-};
+import { usePathname } from "next/navigation";
+import { useMemo } from "react";
+import { AlertCircle, CheckCircle, Terminal, Download } from "lucide-react";
+import zhTranslations from "../../../components/i18n/zh";
+import enTranslations from "../../../components/i18n/en";
 
 export default function InstallationPage() {
+  const pathname = usePathname();
+  const isEnglish = pathname.startsWith("/en");
+  const lang = isEnglish ? "en" : "zh";
+  
+  const translations = lang === "en" ? enTranslations : zhTranslations;
+  const t = useMemo(() => {
+    return (key: string): string => {
+      return (translations as Record<string, string>)[key] || key;
+    };
+  }, [lang, translations]);
+
   return (
     <DocLayout>
-      <h1>安装 OpenClaw</h1>
+      <h1>{t("install.title")}</h1>
       
-      <p>
-        OpenClaw 支持 Windows、macOS 和 Linux 系统。选择适合你系统的安装方式，
-        几分钟内即可开始使用。
-      </p>
+      <p>{t("install.desc")}</p>
 
       <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-6 rounded-r-lg">
         <div className="flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
           <div>
-            <h4 className="font-semibold text-blue-900">开始之前</h4>
+            <h4 className="font-semibold text-blue-900">{t("install.prereq.title")}</h4>
             <p className="text-blue-800 text-sm mt-1">
-              确保你的系统已安装 Node.js 18.0+。可以通过运行 <code>node --version</code> 检查版本。
+              {t("install.prereq.desc")} <code>node --version</code>.
             </p>
           </div>
         </div>
       </div>
 
-      <h2>系统要求</h2>
+      <h2>{t("install.requirements")}</h2>
       <div className="grid md:grid-cols-3 gap-4 my-6">
         <div className="bg-slate-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-slate-900 mb-2">Node.js</h4>
-          <p className="text-slate-600 text-sm">版本 18.0 或更高</p>
+          <h4 className="font-semibold text-slate-900 mb-2">{t("install.req.node")}</h4>
+          <p className="text-slate-600 text-sm">{t("install.req.nodeDesc")}</p>
         </div>
         <div className="bg-slate-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-slate-900 mb-2">包管理器</h4>
-          <p className="text-slate-600 text-sm">npm 或 yarn</p>
+          <h4 className="font-semibold text-slate-900 mb-2">{t("install.req.package")}</h4>
+          <p className="text-slate-600 text-sm">{t("install.req.packageDesc")}</p>
         </div>
         <div className="bg-slate-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-slate-900 mb-2">Git（可选）</h4>
-          <p className="text-slate-600 text-sm">用于克隆仓库</p>
+          <h4 className="font-semibold text-slate-900 mb-2">{t("install.req.git")}</h4>
+          <p className="text-slate-600 text-sm">{t("install.req.gitDesc")}</p>
         </div>
       </div>
 
-      <h2>安装方式</h2>
+      <h2>{t("install.methods")}</h2>
       
-      <h3>方式一：通过 npm 安装（推荐）</h3>
-      <p>最简单的方式是全局安装 OpenClaw CLI：</p>
+      <h3>{t("install.method1.title")}</h3>
+      <p>{t("install.method1.desc")}</p>
       
       <CodeBlock code="npm install -g openclaw" />
 
@@ -55,43 +65,43 @@ export default function InstallationPage() {
         <div className="flex items-start gap-3">
           <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
           <div>
-            <h4 className="font-semibold text-green-900">验证安装</h4>
+            <h4 className="font-semibold text-green-900">{t("install.method1.verify")}</h4>
             <p className="text-green-800 text-sm mt-1">
-              安装完成后，运行以下命令验证是否成功：
+              {t("install.method1.verifyDesc")}
             </p>
             <CodeBlock code="openclaw --version" />
           </div>
         </div>
       </div>
 
-      <h3>方式二：从源码安装</h3>
-      <p>如果你想参与开发或使用最新功能，可以从 GitHub 克隆源码：</p>
+      <h3>{t("install.method2.title")}</h3>
+      <p>{t("install.method2.desc")}</p>
       
       <CodeBlock 
-        code={`# 克隆仓库
+        code={`# Clone the repository
 git clone https://github.com/openclaw/openclaw.git
 
-# 进入目录
+# Navigate to directory
 cd openclaw
 
-# 安装依赖
+# Install dependencies
 npm install
 
-# 构建项目
+# Build project
 npm run build
 
-# 链接到全局（可选）
+# Link to global (optional)
 npm link`} 
       />
 
-      <h3>方式三：使用 Docker</h3>
-      <p>如果你更喜欢容器化部署，可以使用 Docker：</p>
+      <h3>{t("install.method3.title")}</h3>
+      <p>{t("install.method3.desc")}</p>
       
       <CodeBlock 
-        code={`# 拉取镜像
+        code={`# Pull the image
 docker pull openclaw/openclaw:latest
 
-# 运行容器
+# Run the container
 docker run -d \\
   --name openclaw \\
   -v $(pwd)/workspace:/app/workspace \\
@@ -99,80 +109,79 @@ docker run -d \\
   openclaw/openclaw:latest`} 
       />
 
-      <h2>初始化工作区</h2>
-      <p>安装完成后，创建你的工作区目录：</p>
+      <h2>{t("install.init.title")}</h2>
+      <p>{t("install.init.desc")}</p>
       
       <CodeBlock code="openclaw init my-assistant" />
 
-      <p>这将创建一个包含以下结构的目录：</p>
+      <p>{t("install.init.structure")}</p>
       
       <CodeBlock 
         filename="my-assistant/"
-        code={`├── config.yaml          # 主配置文件
-├── .env                 # 环境变量
-├── memory/              # 记忆存储目录
-│   └── MEMORY.md       # 核心记忆文件
-├── skills/              # 自定义技能目录
-└── workspace/           # 工作文件目录`} 
+        code={`├── config.yaml          # Main configuration file
+├── .env                 # Environment variables
+├── memory/              # Memory storage directory
+│   └── MEMORY.md       # Core memory file
+├── skills/              # Custom skills directory
+└── workspace/           # Workspace files directory`} 
       />
 
-      <h2>配置环境变量</h2>
-      <p>编辑 <code>.env</code> 文件，添加必要的 API 密钥：</p>
+      <h2>{t("install.env.title")}</h2>
+      <p>Edit the <code>.env</code> file and add necessary API keys:</p>
       
       <CodeBlock 
         filename=".env"
-        code={`# AI 模型 API 密钥（至少配置一个）
+        code={`# AI Model API Keys (configure at least one)
 OPENAI_API_KEY=sk-your-openai-key
 ANTHROPIC_API_KEY=sk-your-anthropic-key
 
-# 消息平台 Token（根据需要配置）
+# Messaging Platform Tokens (configure as needed)
 TELEGRAM_BOT_TOKEN=your-telegram-token
 DISCORD_BOT_TOKEN=your-discord-token`} 
       />
 
-      <h2>启动服务</h2>
-      <p>一切准备就绪后，启动 OpenClaw：</p>
+      <h2>{t("install.start.title")}</h2>
+      <p>{t("install.start.desc")}</p>
       
       <CodeBlock code="openclaw start" />
 
       <div className="bg-slate-900 text-slate-50 p-4 rounded-lg my-6 font-mono text-sm">
         <div className="flex items-center gap-2 mb-2 text-green-400">
           <Terminal className="w-4 h-4" />
-          <span>终端输出</span>
+          <span>{t("install.terminal")}</span>
         </div>
         <div className="space-y-1">
           <p><span className="text-green-400">✓</span> Config loaded</p>
           <p><span className="text-green-400">✓</span> Skills loaded: weather, web_search</p>
           <p><span className="text-green-400">✓</span> Telegram provider connected</p>
-          <p><span className="text-green-400">✓</span> Agent &apos;default&apos; ready</p>
+          <p><span className="text-green-400">✓</span> Agent 'default' ready</p>
           <p className="text-blue-400">🚀 OpenClaw is running on http://localhost:3000</p>
         </div>
       </div>
 
-      <h2>常见问题</h2>
+      <h2>{t("install.faq")}</h2>
       
-      <h4>Q: 安装时遇到权限错误？</h4>
-      <p>在 Linux/macOS 上，可能需要使用 sudo：</p>
+      <h4>{t("install.faq.1.q")}</h4>
+      <p>{t("install.faq.1.a")}</p>
       <CodeBlock code="sudo npm install -g openclaw" />
 
-      <h4>Q: 如何更新到最新版本？</h4>
+      <h4>{t("install.faq.3.q")}</h4>
       <CodeBlock code="npm update -g openclaw" />
 
-      <h4>Q: 如何卸载？</h4>
+      <h4>{t("install.faq.4.q")}</h4>
       <CodeBlock code="npm uninstall -g openclaw" />
 
-      <h2>下一步</h2>
+      <h2>{t("install.next")}</h2>
       <p>
-        恭喜你完成安装！接下来请阅读 <a href="/docs/quickstart">快速开始</a> 指南，
-        配置你的第一个消息平台连接。
+        {t("install.next.desc")}
       </p>
 
       <div className="flex items-center gap-4 mt-8">
         <a 
-          href="/docs/quickstart" 
+          href={lang === "en" ? "/en/docs/quickstart" : "/docs/quickstart"}
           className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
         >
-          继续：快速开始
+          {t("install.continue")}
           <Download className="w-4 h-4" />
         </a>
       </div>

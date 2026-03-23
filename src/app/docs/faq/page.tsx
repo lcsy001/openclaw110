@@ -1,12 +1,14 @@
+"use client";
+
 import DocLayout from "../../../components/DocLayout";
 import CodeBlock from "../../../components/CodeBlock";
+import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 import { HelpCircle, AlertTriangle, MessageCircle, Server, Key, Bug, RefreshCw } from "lucide-react";
+import zhTranslations from "../../../components/i18n/zh";
+import enTranslations from "../../../components/i18n/en";
 
-export const metadata = {
-  title: "常见问题 - OpenClaw 教程",
-};
-
-const faqs = [
+const faqsZH = [
   {
     category: "安装与启动",
     icon: Server,
@@ -81,22 +83,108 @@ const faqs = [
   }
 ];
 
+const faqsEN = [
+  {
+    category: "Installation & Startup",
+    icon: Server,
+    items: [
+      {
+        q: "How to fix permission errors during installation?",
+        a: "On Linux/macOS, try using sudo: sudo npm install -g openclaw. Or check npm's global installation directory permissions."
+      },
+      {
+        q: "Port already in use when starting",
+        a: "Default port is 3000. Use --port parameter to specify another port: openclaw start --port 3001"
+      },
+      {
+        q: "How to completely uninstall OpenClaw?",
+        a: "Run npm uninstall -g openclaw, then delete the workspace directory."
+      }
+    ]
+  },
+  {
+    category: "Configuration Issues",
+    icon: Key,
+    items: [
+      {
+        q: "How to fix configuration file format errors?",
+        a: "Use openclaw validate command to check the config file. Note: YAML indentation must use spaces, not tabs."
+      },
+      {
+        q: "Environment variables not taking effect",
+        a: "Make sure .env file is in the workspace root directory, and variable names match what's referenced in config. Restart service after changes."
+      },
+      {
+        q: "How to switch between different models?",
+        a: "Modify agents.default.model field in config.yaml, format: provider/model-name, e.g., bailian/kimi-k2.5"
+      }
+    ]
+  },
+  {
+    category: "Messaging Platforms",
+    icon: MessageCircle,
+    items: [
+      {
+        q: "Telegram Bot not responding to messages",
+        a: "Check: 1) Token is correct 2) /start command sent 3) Network can access Telegram API 4) View logs: openclaw logs"
+      },
+      {
+        q: "Discord Bot offline",
+        a: "Check if Discord Bot Token is correct, and if necessary Intents permissions are enabled in Discord Developer Portal."
+      },
+      {
+        q: "Feishu robot not receiving messages",
+        a: "Confirm: 1) App is published 2) Bot is added to group 3) Subscribed to message event 4) Callback URL configured correctly"
+      }
+    ]
+  },
+  {
+    category: "Troubleshooting",
+    icon: Bug,
+    items: [
+      {
+        q: "Assistant responds slowly",
+        a: "Possible causes: 1) Network latency 2) Slow model response 3) Context too long. Try switching to faster model or reducing context_window."
+      },
+      {
+        q: "Skills not working",
+        a: "Check: 1) Skill is enabled in config.yaml 2) Required API Key is configured 3) View logs for detailed errors"
+      },
+      {
+        q: "High memory usage",
+        a: "Try: 1) Reduce context_window 2) Disable unnecessary skills 3) Restart service 4) Use lighter model"
+      }
+    ]
+  }
+];
+
 export default function FAQPage() {
+  const pathname = usePathname();
+  const isEnglish = pathname.startsWith("/en");
+  const lang = isEnglish ? "en" : "zh";
+  
+  const translations = lang === "en" ? enTranslations : zhTranslations;
+  const t = useMemo(() => {
+    return (key: string): string => {
+      return (translations as Record<string, string>)[key] || key;
+    };
+  }, [lang, translations]);
+
+  const faqs = lang === "en" ? faqsEN : faqsZH;
+
   return (
     <DocLayout>
-      <h1>常见问题</h1>
+      <h1>{t("faq.title")}</h1>
       
-      <p>
-        这里收集了用户最常遇到的问题。如果你在这里找不到答案，欢迎加入我们的 Discord 社区寻求帮助。
-      </p>
+      <p>{t("faq.desc")}</p>
 
       <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-6 rounded-xl my-8">
         <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
           <HelpCircle className="w-5 h-5" />
-          遇到问题？
+          {t("faq.problemTitle")}
         </h3>
         <p className="text-amber-100">
-          首先查看下方的常见问题，如果无法解决，可以通过 Discord 或 GitHub Issues 寻求帮助。
+          {t("faq.problemDesc")}
         </p>
       </div>
 
@@ -122,56 +210,56 @@ export default function FAQPage() {
         </div>
       ))}
 
-      <h2>调试技巧</h2>
+      <h2>{t("faq.debugTips")}</h2>
       
-      <h3>查看详细日志</h3>
-      <CodeBlock code={`# 实时查看日志
+      <h3>{t("faq.viewLogs")}</h3>
+      <CodeBlock code={`# View logs in real-time
 openclaw logs -f
 
-# 查看最近 100 行
+# View last 100 lines
 openclaw logs -n 100
 
-# 调试模式启动
+# Start in debug mode
 openclaw start --debug`} />
 
-      <h3>检查服务状态</h3>
-      <CodeBlock code={`# 查看整体状态
+      <h3>{t("faq.checkStatus")}</h3>
+      <CodeBlock code={`# View overall status
 openclaw status
 
-# 查看 Gateway 状态
+# View Gateway status
 openclaw gateway status
 
-# 查看配置是否有效
+# Validate configuration
 openclaw validate`} />
 
-      <h3>常见问题速查</h3>
+      <h3>{t("faq.quickRef")}</h3>
       <div className="grid md:grid-cols-2 gap-4 my-6">
         <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
           <h4 className="font-semibold text-red-900 mb-2 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" />
-            连接错误
+            {t("faq.connectionError")}
           </h4>
           <ul className="text-red-800 text-sm space-y-1">
-            <li>• 检查网络连接</li>
-            <li>• 验证 API Token</li>
-            <li>• 查看防火墙设置</li>
+            <li>• {t("faq.connTip1")}</li>
+            <li>• {t("faq.connTip2")}</li>
+            <li>• {t("faq.connTip3")}</li>
           </ul>
         </div>
         <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
           <h4 className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
             <RefreshCw className="w-4 h-4" />
-            性能问题
+            {t("faq.perfIssue")}
           </h4>
           <ul className="text-yellow-800 text-sm space-y-1">
-            <li>• 减少 context_window</li>
-            <li>• 切换到更快的模型</li>
-            <li>• 关闭不必要的技能</li>
+            <li>• {t("faq.perfTip1")}</li>
+            <li>• {t("faq.perfTip2")}</li>
+            <li>• {t("faq.perfTip3")}</li>
           </ul>
         </div>
       </div>
 
-      <h2>获取帮助</h2>
-      <p>如果以上方法都无法解决你的问题，可以通过以下渠道寻求帮助：</p>
+      <h2>{t("faq.getHelp")}</h2>
+      <p>{t("faq.getHelpDesc")}</p>
       
       <div className="grid md:grid-cols-3 gap-4 my-6">
         <a 
@@ -180,8 +268,8 @@ openclaw validate`} />
           rel="noopener noreferrer"
           className="bg-indigo-50 p-4 rounded-lg hover:bg-indigo-100 transition-colors"
         >
-          <h4 className="font-semibold text-indigo-900 mb-2">Discord 社区</h4>
-          <p className="text-indigo-700 text-sm">实时交流，快速获得帮助</p>
+          <h4 className="font-semibold text-indigo-900 mb-2">{t("faq.discord")}</h4>
+          <p className="text-indigo-700 text-sm">{t("faq.discordDesc")}</p>
         </a>
         <a 
           href="https://github.com/openclaw/openclaw/issues" 
@@ -189,8 +277,8 @@ openclaw validate`} />
           rel="noopener noreferrer"
           className="bg-slate-50 p-4 rounded-lg hover:bg-slate-100 transition-colors"
         >
-          <h4 className="font-semibold text-slate-900 mb-2">GitHub Issues</h4>
-          <p className="text-slate-700 text-sm">报告 Bug 或请求功能</p>
+          <h4 className="font-semibold text-slate-900 mb-2">{t("faq.github")}</h4>
+          <p className="text-slate-700 text-sm">{t("faq.githubDesc")}</p>
         </a>
         <a 
           href="https://docs.openclaw.ai" 
@@ -198,16 +286,15 @@ openclaw validate`} />
           rel="noopener noreferrer"
           className="bg-blue-50 p-4 rounded-lg hover:bg-blue-100 transition-colors"
         >
-          <h4 className="font-semibold text-blue-900 mb-2">官方文档</h4>
-          <p className="text-blue-700 text-sm">查看详细文档说明</p>
+          <h4 className="font-semibold text-blue-900 mb-2">{t("faq.docs")}</h4>
+          <p className="text-blue-700 text-sm">{t("faq.docsDesc")}</p>
         </a>
       </div>
 
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl mt-8">
-        <h4 className="font-semibold text-slate-900 mb-2">💡 提交问题建议</h4>
+        <h4 className="font-semibold text-slate-900 mb-2">💡 {t("faq.submitTip")}</h4>
         <p className="text-slate-700 text-sm">
-          向社区求助时，建议提供：1) OpenClaw 版本 2) 配置文件（脱敏后）3) 错误日志 4) 复现步骤。
-          这样可以帮助他人更快地理解和解决你的问题。
+          {t("faq.submitTipDesc")}
         </p>
       </div>
     </DocLayout>
